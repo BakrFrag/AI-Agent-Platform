@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "ai agent platform"
+version = "0.1.0"
+description = ""
+authors = ["BakrFrag"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["all"], version = "^0.121.3"}
+celery = "^5.5.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
