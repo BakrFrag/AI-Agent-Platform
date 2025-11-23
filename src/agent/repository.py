@@ -14,8 +14,6 @@ class AgentRepository(AbstractRepository[Agent, int]):
 
     async def create(self, entity: Agent) -> Agent:
         """Adds a new Agent and loads the generated ID."""
-        print(entity.id, entity.name)
-        print(entity.prompt, entity.created_at)
         self.session.add(entity)
         # Flush to get the ID without committing the transaction yet
         await self.session.flush() 

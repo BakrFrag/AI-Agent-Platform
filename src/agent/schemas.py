@@ -11,12 +11,12 @@ class AgentCreate(AgentBase):
     pass
 
 class AgentUpdate(BaseModel):
-    pass
-
+    name: Optional[str] = Field(None)
+    prompt: Optional[str] = Field(None)
 class AgentRead(AgentBase):
     id: int
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

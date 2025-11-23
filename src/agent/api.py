@@ -45,7 +45,7 @@ async def get_agent(
     """Retrieves a single AI Agent's details."""
     return await service.get_agent(agent_id)
 
-@agent_router.patch(
+@agent_router.put(
     "/{agent_id}",
     response_model=AgentRead,
     summary="Update an existing AI Agent"
@@ -56,6 +56,7 @@ async def update_agent(
     service: AgentService = Depends(get_agent_service)
 ):
     """Updates the name, system prompt, or active status of an AI Agent."""
+    print("model dump:", agent_data.model_dump())
     return await service.update_agent(agent_id, agent_data)
 
 @agent_router.delete(

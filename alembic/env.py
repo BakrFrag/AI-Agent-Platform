@@ -1,5 +1,3 @@
-import sys
-from pathlib import Path
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -7,8 +5,6 @@ from sqlalchemy import pool
 
 from alembic import context
 
-# Add the project root to sys.path so that 'src' can be imported
-# sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
  
 from src.common import Base
 from src.core import settings 
