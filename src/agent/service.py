@@ -17,7 +17,7 @@ class AgentService:
     async def create_agent(self, agent_data: AgentCreate) -> Agent:
         """Creates a new Agent with basic validation."""
         # Simple Business Rule Example
-        if not agent_data.system_prompt.strip():
+        if not agent_data.prompt.strip():
              raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="System prompt cannot be empty."

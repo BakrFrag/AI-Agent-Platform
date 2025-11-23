@@ -4,7 +4,7 @@ from typing import Optional
 
 class AgentBase(BaseModel):
     name: str = Field(..., max_length=100)
-    system_prompt: str = Field(..., description="The system prompt defining the agent's persona.")
+    prompt: str = Field(..., description="The system prompt defining the agent's persona.")
    # is_active: bool = Field(True)
 
 class AgentCreate(AgentBase):

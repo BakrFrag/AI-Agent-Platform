@@ -8,7 +8,7 @@ from sqlalchemy import pool
 from alembic import context
 
 # Add the project root to sys.path so that 'src' can be imported
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
  
 from src.common import Base
 from src.core import settings 
@@ -49,7 +49,7 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 
-from src.agent import Agent
+from src.agent.models import Agent
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
 

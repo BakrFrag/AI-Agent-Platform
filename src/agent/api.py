@@ -5,7 +5,7 @@ from .service import AgentService
 from .dependency  import get_agent_service
 
 
-agent_router = APIRouter(prefix="/v1/agent", tags=["Agents"])
+agent_router = APIRouter(prefix="/agent", tags=["Agents"])
 
 @agent_router.post(
     "/", 
