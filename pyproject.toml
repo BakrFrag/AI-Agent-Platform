@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.12"
 fastapi = {extras = ["all"], version = "^0.121.3"}
 celery = "^5.5.3"
+sqlalchemy = "^2.0.44"
 
 
 [build-system]

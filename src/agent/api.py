@@ -1,12 +1,11 @@
+from typing import List
 from fastapi import APIRouter, Depends, status
-
 from .schemas import AgentCreate, AgentRead, AgentUpdate
 from .service import AgentService
-from typing import List
-
-router = APIRouter(prefix="/agents", tags=["Agents"])
+from .dependency  import get_agent_service
 
 
+router = APIRouter(prefix="v1/agent", tags=["Agents"])
 
 @router.post(
     "/", 
