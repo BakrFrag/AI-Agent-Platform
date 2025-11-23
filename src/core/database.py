@@ -1,9 +1,9 @@
 
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import DeclarativeBase, AsyncAttrs
-
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from src.core import settings, logger
+
 
 DATABASE_URL = settings.DATABASE_URL
 
@@ -45,16 +45,3 @@ async def get_db_async_session() -> AsyncGenerator[AsyncSession, None]:
         finally:
             await session.close()
             
-# --- Utility for Initialization ---
-
-async def init_db():
-    """
-    Initializes the database and creates all tables defined in Base.
-    This is typically called on application startup.
-    """
-    async with async_engine.begin() as conn:
-        # Import models here to ensure they are registered with Base
-        # (Assuming models are defined elsewhere, e.g., src.agents.models)
-        # For a clean startup, we create the tables if they don't exist.
-        # await conn.run_sync(Base.metadata.create_all)
-        pass # We will manage actual table creation with Alembic later.

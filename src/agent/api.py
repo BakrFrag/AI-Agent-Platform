@@ -5,9 +5,9 @@ from .service import AgentService
 from .dependency  import get_agent_service
 
 
-router = APIRouter(prefix="v1/agent", tags=["Agents"])
+agent_router = APIRouter(prefix="/v1/agent", tags=["Agents"])
 
-@router.post(
+@agent_router.post(
     "/", 
     response_model=AgentRead, 
     status_code=status.HTTP_201_CREATED,
@@ -20,7 +20,7 @@ async def create_agent(
     """Creates a new AI Agent persona."""
     return await service.create_agent(agent_data)
 
-@router.get(
+@agent_router.get(
     "/", 
     response_model=List[AgentRead],
     summary="List all AI Agents"
@@ -33,7 +33,7 @@ async def list_agents(
     """Retrieves a list of all defined AI Agents."""
     return await service.list_agents(skip=skip, limit=limit)
 
-@router.get(
+@agent_router.get(
     "/{agent_id}", 
     response_model=AgentRead,
     summary="Get a specific AI Agent by ID"
@@ -45,7 +45,7 @@ async def get_agent(
     """Retrieves a single AI Agent's details."""
     return await service.get_agent(agent_id)
 
-@router.patch(
+@agent_router.patch(
     "/{agent_id}",
     response_model=AgentRead,
     summary="Update an existing AI Agent"
@@ -58,7 +58,7 @@ async def update_agent(
     """Updates the name, system prompt, or active status of an AI Agent."""
     return await service.update_agent(agent_id, agent_data)
 
-@router.delete(
+@agent_router.delete(
     "/{agent_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete an AI Agent"

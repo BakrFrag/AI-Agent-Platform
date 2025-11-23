@@ -1,13 +1,45 @@
+import sys
+from pathlib import Path
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+
+# Add the project root to sys.path so that 'src' can be imported
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+ 
 from src.common import Base
+from src.core import settings 
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+def get_sync_url(async_url: str) -> str:
+    """Convert async database URL to sync URL for Alembic migrations"""
+    url = async_url
+    
+    # SQLite: aiosqlite → sqlite
+    if "+aiosqlite" in url:
+        url = url.replace("+aiosqlite", "")
+    
+    # PostgreSQL: asyncpg → psycopg2
+    elif "+asyncpg" in url:
+        url = url.replace("+asyncpg", "+psycopg2")
+    
+    # MySQL: aiomysql → pymysql
+    elif "+aiomysql" in url:
+        url = url.replace("+aiomysql", "+pymysql")
+    
+    return url
+
+# Get the sync version of the database URL
+database_url = get_sync_url(settings.DATABASE_URL)
+config.set_main_option("sqlalchemy.url", database_url)
+
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -16,7 +48,8 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-# from myapp import mymodel
+
+from src.agent import Agent
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
 

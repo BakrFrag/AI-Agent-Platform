@@ -18,6 +18,7 @@ class AgentRepository(AbstractRepository[Agent, int]):
         # Flush to get the ID without committing the transaction yet
         await self.session.flush() 
         await self.session.refresh(entity)
+        await self.session.commit()
         logger.debug(f"Created new agent with ID: {entity.id}")
         return entity
 
@@ -41,6 +42,7 @@ class AgentRepository(AbstractRepository[Agent, int]):
         )
         
         await self.session.execute(stmt)
+        await self.session.commit() 
         logger.debug(f"Updated Agent ID: {agent_id}")
         
         # Must fetch the updated object to reflect the changes (e.g., updated_at)
@@ -50,6 +52,7 @@ class AgentRepository(AbstractRepository[Agent, int]):
         """Deletes an Agent by ID."""
         stmt = delete(Agent).where(Agent.id == entity_id)
         result = await self.session.execute(stmt)
+        await self.session.commit() 
         if result.rowcount > 0:
             logger.info(f"Deleted Agent ID: {entity_id}")
             return True
