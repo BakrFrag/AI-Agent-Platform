@@ -1,4 +1,4 @@
-from core.configs import settings
-from core.logger import logger
+from src.core.configs import settings
+from src.core.logger import logger
 
 __all__ = ["settings", "logger"]

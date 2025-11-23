@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Optional, Sequence, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from .orm_base import Base
+from src.common.orm_base import Base
 
 M = TypeVar('M', bound=Base)
 K = TypeVar('K', bound=Any)
