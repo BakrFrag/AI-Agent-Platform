@@ -21,7 +21,7 @@ class SessionUpdate(BaseModel):
         """Returns a dictionary with only non-None values for database update."""
         return self.model_dump(exclude_none=True)
 
-class SessionResponse(BaseModel):
+class Session(BaseModel):
     """Schema for returning Session data to the client."""
     id: int
     agent_id: int

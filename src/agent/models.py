@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, Text, Boolean
+from sqlalchemy.orm import relationship
 from src.common.orm_base import Base
 
 class Agent(Base):
@@ -8,4 +9,10 @@ class Agent(Base):
     __tablename__ = "agents"
     name = Column(String(100), index=True, nullable=False)
     prompt = Column(Text, nullable=False)
-    #is_active = Column(Boolean, default=True, nullable=False)
+     
+    sessions = relationship(
+        "Session",
+        back_populates="agent",
+        cascade="all, delete-orphan",  # delete sessions when agent deleted (optional)
+        lazy="selectin",               # default loading style (can change)
+    )

@@ -12,8 +12,6 @@ class Session(Base):
     __tablename__ = 'sessions'
 
     agent_id = Column(String, nullable=False, index=True) 
-    
-    # A user-friendly title for the session, often generated from the first message
     title = Column(String, default="New Chat Session")
     
     # Relationship to the Message model (for reference, though Message logic is separate)
