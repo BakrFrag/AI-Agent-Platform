@@ -1,27 +1,15 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-# Mocking the dependency injection of the DB session
 from sqlalchemy.ext.asyncio import AsyncSession
-# Assume a utility function to get the session
-def get_db_session() -> AsyncSession:
-    """Dependency: Simulates getting an active DB session."""
-    # This would yield a session from a connection pool in a real FastAPI app
-    raise NotImplementedError("Database dependency not implemented in this mock.")
-
-# Import the service and schemas we defined
-from session_service import SessionService, SessionCreateRequest, SessionUpdateRequest, SessionResponse, SessionServiceError
-
-# Create the router for /sessions
-router = APIRouter(
-    prefix="/sessions",
-    tags=["Sessions"],
-    responses={404: {"description": "Not found"}},
+from .schemas import (
+    SessionCreateRequest,
+    SessionUpdateRequest,
+    SessionResponse
 )
+from .dependancy import get_session_service
+from .service import SessionService
+router = APIRouter(prefix="/session",tags=["Sessions"])
 
-# Dependency injection for the SessionService
-def get_session_service(db: AsyncSession = Depends(get_db_session)) -> SessionService:
-    """Dependency: Provides an instance of the SessionService."""
-    return SessionService(db)
 
 
 @router.post(
@@ -37,12 +25,10 @@ async def create_session(
     """
     Creates a new chat session linked to a specific AI agent.
     """
-    try:
-        session = await service.create_new_session(request)
-        return session
-    except SessionServiceError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
+   
+    session = await service.create_new_session(request)
+    return session
+   
 
 @router.get(
     "/{session_id}", 
@@ -104,9 +90,8 @@ async def delete_session(
 ):
     """
     Deletes the session and all associated messages.
+    We return 204 even if not found, as the desired state (deleted) is achieved (Idempotence)
     """
-    if not await service.delete_session_by_id(session_id):
-        # We return 204 even if not found, as the desired state (deleted) is achieved (Idempotence)
-        # However, for user feedback, a 404 is often more useful here.
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
-    return
+    await service.delete_session_by_id(session_id):
+       
+    return 204
