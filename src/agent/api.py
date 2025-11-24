@@ -70,4 +70,4 @@ async def delete_agent(
 ):
     """Deletes an AI Agent."""
     await service.delete_agent(agent_id)
-    return
+    return 
