@@ -16,3 +16,6 @@ class Agent(Base):
         cascade="all, delete-orphan",  # delete sessions when agent deleted (optional)
         lazy="selectin",               # default loading style (can change)
     )
+
+    def __repr__(self):
+        return f"<Agent(id={self.id}, name='{self.name}'>"
