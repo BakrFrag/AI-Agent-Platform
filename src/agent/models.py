@@ -14,7 +14,7 @@ class Agent(Base):
         "Session",
         back_populates="agent",
         cascade="all, delete-orphan",  # delete sessions when agent deleted (optional)
-        lazy="selectin",               # default loading style (can change)
+        lazy="selectin",               # to eager loading sessions with the agent
     )
 
     def __repr__(self):

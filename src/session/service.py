@@ -1,85 +1,79 @@
-from typing import List, Optional
-from session_repository import SessionRepository
-from session_model import Session
+from typing import List, Sequence, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException, status
+# Placeholder imports from other layers
+from src.core.logger import logger
+from src.agents.repository import AgentRepository 
+from src.agents.exceptions import AgentNotFoundError # Assuming this exists
+from .session_repository import SessionRepository, Session # Import ORM model and repository
+from .session_dtos import SessionCreate, SessionUpdate, SessionResponse 
+from .session_exceptions import (
+    SessionNotFoundError, 
+    AgentNotAvailableError
+)
 
-
-class SessionCreateRequest:
-    """Represents the data needed to create a session."""
-    def __init__(self, agent_id: str):
-        self.agent_id = agent_id
-
-class SessionUpdateRequest:
-    """Represents the data for updating a session."""
-    def __init__(self, title: Optional[str] = None):
-        self.title = title
-
-class SessionResponse:
-    """Represents the data returned to the client."""
-    def __init__(self, session: Session):
-        self.id = session.id
-        self.agent_id = session.agent_id
-        self.title = session.title
-        self.status = session.status
-        self.created_at = session.created_at
-        self.updated_at = session.updated_at
-        
-class SessionServiceError(Exception):
-    """Custom exception for service-level errors."""
-    pass
-# -----------------------------------------------------------------
 
 
 class SessionService:
     """
-    Handles the business logic related to sessions. 
-    It interacts with the repository and applies validation/rules.
+    Handles the business logic for Session resources, coordinating data access
+    and applying validation rules.
     """
 
     def __init__(self, db_session: AsyncSession):
-        self.repository = SessionRepository(db_session)
-        # Note: In a real app, you'd inject dependencies like UserService, AgentService here
+        """Initializes the service with repository instances."""
+        self.session_repo = SessionRepository(db_session)
+        # In a real app, this would be the actual AgentRepository
+        self.agent_repo = AgentRepositoryMock(db_session) 
 
-    async def create_new_session(self, request: SessionCreateRequest) -> SessionResponse:
+    async def create_session(self, session_data: SessionCreate) -> SessionResponse:
         """
-        Validates the request and calls the repository to create the session.
+        Validates agent status and creates a new session.
         """
-        if not request.agent_id:
-            raise SessionServiceError("Agent ID is required to start a session.")
+        # 1. Validation: Check if the Agent exists and is active
+        agent = await self.agent_repo.get_by_id(session_data.agent_id)
         
-        # In a real scenario, check if the agent_id actually exists in the AgentService
-        # if not await self.agent_service.is_valid_agent(request.agent_id):
-        #     raise SessionServiceError("Invalid Agent ID provided.")
+        if not agent:
+            logger.error(f"Failed to create session: Agent ID {session_data.agent_id} not found.")
+            raise HTTPException(status_code=404, detail = f"agent with id {session_data.agent_id} not found")
 
-        session_model = await self.repository.create_session(agent_id=request.agent_id)
+        session = Session(
+            agent_id=session_data.agent_id,
+            title=session_data.title,
+        )
+        created_session = await self.session_repo.create(session)
+        return self.get_session_by_id(created_session.id)
+
+    async def get_session_by_id(self, session_id: int) -> SessionResponse:
+        """Retrieves a single session by ID."""
+        session = await self.session_repo.get_by_id(session_id)
+        if not session:
+            raise SessionNotFoundError(session_id)
+        return SessionResponse.from_model(session)
+
+    async def get_sessions_by_user(self, user_id: str, skip: int = 0, limit: int = 100) -> List[SessionResponse]:
+        """Retrieves all sessions for a specific user."""
+        sessions = await self.session_repo.get_by_user_id(user_id, skip, limit)
+        return [SessionResponse.from_model(s) for s in sessions]
+
+    async def update_session(self, session_id: int, update_data: SessionUpdate) -> SessionResponse:
+        """Updates the title or status of an existing session."""
+        update_dict = update_data.to_update_dict()
         
-        # Return the Pydantic-like response object
-        return SessionResponse(session_model)
+        if not update_dict:
+            # Nothing to update, just return the current state
+            return await self.get_session_by_id(session_id)
 
-    async def get_session(self, session_id: int) -> Optional[SessionResponse]:
-        """Fetches a session by ID and converts it to the response format."""
-        session_model = await self.repository.get_session_by_id(session_id)
-        if session_model:
-            return SessionResponse(session_model)
-        return None
-
-    async def get_sessions_list(self) -> List[SessionResponse]:
-        """Fetches all sessions (simulating a user's session list)."""
-        session_models = await self.repository.get_all_sessions(limit=50)
-        return [SessionResponse(s) for s in session_models]
-
-    async def update_session(self, session_id: int, request: SessionUpdateRequest) -> Optional[SessionResponse]:
-        """Updates session fields based on the request."""
-        if request.title:
-            session_model = await self.repository.update_session_title(session_id, request.title)
-            if session_model:
-                return SessionResponse(session_model)
+        updated_session = await self.session_repo.update(session_id, update_dict)
         
-        # If no update occurred or session not found
-        return await self.get_session(session_id)
+        if not updated_session:
+            raise SessionNotFoundError(session_id)
 
-    async def delete_session_by_id(self, session_id: int) -> bool:
-        """Marks a session as deleted."""
-        # In a production app, you would also handle cascading deletion of all associated messages.
-        is_deleted = await self.repository.delete_session(session_id)
-        return is_deleted
+        return SessionResponse.from_model(updated_session)
+
+    async def delete_session(self, session_id: int) -> bool:
+        """Deletes a session by ID."""
+        success = await self.session_repo.delete_by_id(session_id)
+        if not success:
+            raise SessionNotFoundError(session_id)
+        return success
