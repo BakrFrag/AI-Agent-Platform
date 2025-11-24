@@ -11,12 +11,18 @@ class Session(Base):
     """
     __tablename__ = 'sessions'
 
-    agent_id = Column(String, nullable=False, index=True) 
-    title = Column(String, default="New Chat Session")
     
-    # Relationship to the Message model (for reference, though Message logic is separate)
-    # lazy='joined' ensures messages are loaded with the session if needed later.
-    # messages = relationship("Message", back_populates="session", lazy="joined")
+    title = Column(String, default="New Chat Session")
+    agent_id = Column(
+        Integer,
+        ForeignKey("agent.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    agent = relationship(
+        "Agent",
+        back_populates="sessions",
+    )
     
     def __repr__(self):
         return f"<Session(id={self.id}, title='{self.title}', agent_id='{self.agent_id}')>"
