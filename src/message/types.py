@@ -1,5 +1,10 @@
 from enum import StrEnum
 
+class MeesageRole(StrEnum):
+    """Role of the message sender"""
+    USER = "user"       
+    ASSISTANT = "assistant"
+
 class MessageType(StrEnum):
     """Type of message: text or voice"""
     TEXT = "text"
