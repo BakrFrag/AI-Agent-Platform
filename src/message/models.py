@@ -23,7 +23,6 @@ class Message(Base):
     type = Column(SQLEnum(MessageType), default=MessageType.TEXT, nullable=False)
     audio_url = Column(String(500), nullable=True)
     
-    # Many-to-One: Many messages belong to one session
     session = relationship("Session", back_populates="messages")
     
     def __repr__(self):
