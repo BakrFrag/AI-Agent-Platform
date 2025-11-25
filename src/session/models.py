@@ -23,6 +23,14 @@ class Session(Base):
         "Agent",
         back_populates="sessions",
     )
+
+    messages = relationship(
+        "Message", 
+        back_populates="session",
+        cascade="all, delete-orphan",  # If session deleted, delete all messages
+        order_by="Message.created_at",  # Always return messages in chronological order
+        lazy="selectin"
+    )
     
     def __repr__(self):
         return f"<Session(id={self.id}, title='{self.title}', agent_id='{self.agent_id}')>"
