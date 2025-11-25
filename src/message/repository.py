@@ -48,13 +48,13 @@ class MessageRepository(AbstractRepository[Message, int]):
         logger.debug(f'Retrieved message by ID {entity_id}')
         return result.scalars().first()
 
-    async def update(self, Message_id: int, update_data: dict) -> Optional[Message]:
+    async def update(self, message_id: int, update_data: dict) -> Optional[Message]:
         """
         Updates fields of an existing Message.
         """
-        message_object: Message = await self.get_by_id(Message_id)
+        message_object: Message = await self.get_by_id(message_id)
         if not update_data:
-            logger.warning(f"Attempted to update Message ID {Message_id} with empty data.")
+            logger.warning(f"Attempted to update Message ID {message_id} with empty data.")
             return await message_object
 
         update_data['updated_at'] = datetime.datetime.now() 
@@ -62,7 +62,7 @@ class MessageRepository(AbstractRepository[Message, int]):
         try:
             stmt = (
                 update(Message)
-                .where(Message.id == Message_id)
+                .where(Message.id == message_id)
                 .values(**update_data)
                 .execution_options(synchronize_session="fetch")
             )
