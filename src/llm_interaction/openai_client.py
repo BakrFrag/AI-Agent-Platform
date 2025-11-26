@@ -3,12 +3,12 @@ from pathlib import Path
 from typing import Optional
 from openai import AsyncOpenAI
 from src.core import settings, logger
-
+from .client_repository import LLMClientInterface
 
 OPEN_API_API_KEY = settings.OPENAI_API_KEY
 
 
-class AsyncOpenAIClient:
+class AsyncOpenAIClient(LLMClientInterface):
     """
     Async wrapper around OpenAI for:
       - text -> text conversation
@@ -40,7 +40,7 @@ class AsyncOpenAIClient:
         self.base_retry_delay = base_retry_delay
         logger.info("Initialized OpenAIChatAndVoiceClient")
 
-    async def generate_llm_response(
+    async def send_text_message(
         self,
         content: str,
         session_id: int,
@@ -76,9 +76,7 @@ class AsyncOpenAIClient:
         logger.debug(f"Received response from OpenAI for message {content} within session {session_id}: {response}")
         return response.output_text or ""
 
-    # ---------------------------
-    # Text -> Speech (TTS)
-    # ---------------------------
+    
     async def text_to_speech(
         self,
         text: str,
@@ -111,9 +109,7 @@ class AsyncOpenAIClient:
         output_path.write_bytes(result)
         return output_path
 
-    # ---------------------------
-    # Speech -> Text (STT)
-    # ---------------------------
+    
     async def speech_to_text(
         self,
         audio_path: str | Path,
@@ -135,7 +131,6 @@ class AsyncOpenAIClient:
             raise FileNotFoundError(f"Audio file not found: {audio_path}")
 
         with audio_path.open("rb") as f:
-            # Audio transcription endpoint :contentReference[oaicite:5]{index=5}
             transcription = await self.client.audio.transcriptions.create(
                 model=self.stt_model,
                 file=f,
