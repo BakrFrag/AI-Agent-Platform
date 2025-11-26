@@ -2,14 +2,13 @@ import os
 from pathlib import Path
 from typing import Optional
 from openai import AsyncOpenAI
-from src.core import Settings, logger
+from src.core import settings, logger
 
 
-settings = Settings()
 OPEN_API_API_KEY = settings.OPENAI_API_KEY
 
 
-class OpenAIChatAndVoiceClient:
+class AsyncOpenAIClient:
     """
     Async wrapper around OpenAI for:
       - text -> text conversation
@@ -70,7 +69,8 @@ class OpenAIChatAndVoiceClient:
         logger.debug(f"Constructed messages for OpenAI: {messages}")
         response = await self.client.responses.create(
             model=self.text_model,
-            input=messages,
+            input = content,
+            prompt = prompt
         )
 
         logger.debug(f"Received response from OpenAI for message {content} within session {session_id}: {response}")

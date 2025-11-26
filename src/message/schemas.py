@@ -4,8 +4,13 @@ from datetime import datetime
 from .types import MessageType, MessageRole
 
 class MessageRequest(BaseModel):
-    message: str = Field(..., min_length=2, max_length=4000)
-
+    content: str = Field(..., min_length=2, max_length=4000)
+    session_id: int
+    role:  MessageRole = MessageRole.USER
+    type: MessageType = MessageType.TEXT
+    class Config:
+        from_attributes = True
+    
 class Message(BaseModel):
     id: int
     session_id: int

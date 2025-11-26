@@ -1,10 +1,11 @@
 import datetime
-from typing import Optional
+from typing import Optional, Sequence
 from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from src.common import AbstractRepository
 from .models import Message
+from .schemas import MessageRequest
 from src.core import logger
 
 
@@ -19,7 +20,7 @@ class MessageRepository(AbstractRepository[Message, int]):
         """Initializes the repository with the active database session."""
         super().__init__(session, Message)
 
-    async def create(self, entity: Message) -> Message:
+    async def create(self, entity: MessageRequest) -> Message:
         """
         Inserts a new message entity into the database.
         
@@ -30,6 +31,8 @@ class MessageRepository(AbstractRepository[Message, int]):
             The newly created message object with generated IDs/timestamps.
         """
         try:
+            print("entity in repo create:", entity)
+            
             self.session.add(entity)
             await self.session.flush() 
             await self.session.refresh(entity)
@@ -97,3 +100,9 @@ class MessageRepository(AbstractRepository[Message, int]):
             await self.session.rollback()
             logger.error(f"DB Error deleting Message ID {entity_id}: {e}", exc_info=True)
             raise
+
+    async def get_all(self, session_id: int,  skip: int = 0, limit: int = 100) -> Sequence[Message]:
+        """Retrieves a list of messages with pagination. for specfic session"""
+        stmt = select(Messages).offset(skip).limit(limit).order_by(Agent.id).where(Message.session_id == session_id)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

@@ -18,6 +18,7 @@ async def receive_message(
     service: MessageService = Depends(get_message_service)
 ):
     """Creates a new message"""
+    print("message_data:", message_data.model_dump())
     return await service.receive_message(message_data)
 
 @router.get(

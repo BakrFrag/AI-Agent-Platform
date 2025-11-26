@@ -26,4 +26,4 @@ class Message(Base):
     session = relationship("Session", back_populates="messages")
     
     def __repr__(self):
-        return f"<Message(id={self.id}, session_id={self.session_id}, role='{self.role}', type='{self.message_type}')>"
+        return f"<Message(id={self.id}, session_id={self.session_id}, role='{self.role}', type='{self.type}')>"
