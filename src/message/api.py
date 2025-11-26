@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, status
-from .schemas import TextMessageRequest, MessageResponse, ConversationResponse
+from .schemas import MessageRequest, Message, ConversationResponse
 from .dependency  import get_message_service
 from .service import MessageService
 
@@ -9,20 +9,20 @@ router = APIRouter(prefix="/message", tags=["Messages"])
 
 @router.post(
     "/message", 
-    response_model=MessageResponse, 
+    response_model=Message, 
     status_code=status.HTTP_201_CREATED,
     summary="Create a new Message"
 )
-async def create_message(
-    message_data: TextMessageRequest,
+async def receive_message(
+    message_data: MessageRequest,
     service: MessageService = Depends(get_message_service)
 ):
     """Creates a new message"""
-    return await service.create_message(message_data)
+    return await service.receive_message(message_data)
 
 @router.get(
     "/conversation/{session_id}", 
-    response_model=List[MessageResponse],
+    response_model=List[Message],
     summary="List all AI Messages within session"
 )
 async def list_messages_within_session(

@@ -41,7 +41,7 @@ class OpenAIChatAndVoiceClient:
         self.base_retry_delay = base_retry_delay
         logger.info("Initialized OpenAIChatAndVoiceClient")
 
-    async def send_text_message(
+    async def generate_llm_response(
         self,
         content: str,
         session_id: int,

@@ -3,10 +3,10 @@ from typing import Optional
 from datetime import datetime
 from .types import MessageType, MessageRole
 
-class TextMessageRequest(BaseModel):
+class MessageRequest(BaseModel):
     message: str = Field(..., min_length=2, max_length=4000)
 
-class MessageResponse(BaseModel):
+class Message(BaseModel):
     id: int
     session_id: int
     role: MessageRole
@@ -21,6 +21,6 @@ class MessageResponse(BaseModel):
 
 class ConversationResponse(BaseModel):
     """Response containing both user and assistant messages"""
-    user_message: MessageResponse
-    assistant_message: MessageResponse
+    user_message: Message
+    assistant_message: Message
     session_id: int
