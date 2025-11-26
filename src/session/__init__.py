@@ -1,3 +1,3 @@
-from src.session.schemas import Session as SessionSchema
+from src.session.api import router as session_router  
 
-__all__ = ["Session"]
+__all__ = ["session_router"]

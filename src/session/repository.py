@@ -94,3 +94,10 @@ class SessionRepository(AbstractRepository[Session, int]):
             await self.session.rollback()
             logger.error(f"DB Error deleting session ID {entity_id}: {e}", exc_info=True)
             raise
+
+
+    async def get_all(self, skip: int = 0, limit: int = 100) -> Sequence[Session]:
+        """Retrieves a list of Agents with pagination."""
+        stmt = select(Session).offset(skip).limit(limit).order_by(Session.id)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

@@ -27,5 +27,5 @@ class Session(BaseModel):
     agent_id: int
     title: Optional[str] = None
     created_at: datetime.datetime
-    updated_at: datetime.datetime
+    updated_at: Optional[datetime.datetime] = None
 

@@ -3,9 +3,11 @@ from fastapi import APIRouter, Depends, status
 from .schemas import TextMessageRequest, MessageResponse, ConversationResponse
 from .dependency  import get_message_service
 from .service import MessageService
-message_router = APIRouter(prefix="/message", tags=["Agents"])
 
-@message_router.post(
+
+router = APIRouter(prefix="/message", tags=["Messages"])
+
+@router.post(
     "/message", 
     response_model=MessageResponse, 
     status_code=status.HTTP_201_CREATED,
@@ -18,7 +20,7 @@ async def create_message(
     """Creates a new message"""
     return await service.create_message(message_data)
 
-@message_router.get(
+@router.get(
     "/conversation/{session_id}", 
     response_model=List[MessageResponse],
     summary="List all AI Messages within session"

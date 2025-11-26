@@ -5,8 +5,8 @@ from src.core import settings, logger
 
 # Feature Routers
 from src.agent import  agent_router
-# from task_app.session.api import router as session_router 
-# from task_app.llm_interaction.api import router as llm_router 
+from src.session import session_router
+from src.message import message_router
 
 
 @asynccontextmanager
@@ -38,8 +38,8 @@ API_PREFIX = f"/api/{settings.APP_VERSION}"
 # ==============================================================================
 
 app.include_router(agent_router, prefix=API_PREFIX)
-# app.include_router(session_router, prefix=API_PREFIX)
-# app.include_router(llm_router, prefix=API_PREFIX)
+app.include_router(session_router, prefix=API_PREFIX)
+app.include_router(message_router, prefix=API_PREFIX)
 
 @app.get("/health/check/", tags=["System"])
 async def health_check():
