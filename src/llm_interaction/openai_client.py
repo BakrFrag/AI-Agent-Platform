@@ -62,19 +62,18 @@ class AsyncOpenAIClient(LLMClientInterface):
         logger.debug(f"Sending message to OpenAI: {content} within session {session_id} and system prompt: {prompt} including {len(conversation_history) if conversation_history else 0} previous messages")
 
         messages: list[dict] = []
-        messages.append({"role": "system", "content": prompt})
         if conversation_history:  messages.extend(conversation_history)           
         messages.append({"role": "user", "content": content})
-
         logger.debug(f"Constructed messages for OpenAI: {messages}")
         response = await self.client.responses.create(
             model=self.text_model,
             input = content,
-            prompt = prompt
+            prompt = prompt,
+            conversation_history=conversation_history
         )
 
         logger.debug(f"Received response from OpenAI for message {content} within session {session_id}: {response}")
-        return response.output_text or ""
+        return response.output_text 
 
     
     async def text_to_speech(

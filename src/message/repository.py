@@ -103,6 +103,19 @@ class MessageRepository(AbstractRepository[Message, int]):
 
     async def get_all(self, session_id: int,  skip: int = 0, limit: int = 100) -> Sequence[Message]:
         """Retrieves a list of messages with pagination. for specfic session"""
-        stmt = select(Messages).offset(skip).limit(limit).order_by(Agent.id).where(Message.session_id == session_id)
+        stmt = select(Message).offset(skip).limit(limit).order_by(Message.id).where(Message.session_id == session_id)
         result = await self.session.execute(stmt)
         return result.scalars().all()
+    
+    
+    
+    async def get_message_conversion_history(self, session_id: int, number_of_messages: int = 10) -> list[dict]:
+        """
+        retrieve all messages in the database and return as list of dict with role and content keys
+        """
+        stmt = select(Message.role, Message.content).where(Message.session_id == session_id).order_by(Message.created_at.desc())
+        result = await self.session.execute(stmt)
+        rows = result.all()[:number_of_messages]
+        return [ {"role": r.role, "content": r.content} for r in rows ]
+    
+

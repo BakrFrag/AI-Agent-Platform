@@ -21,6 +21,7 @@ class Session(Base):
     agent = relationship(
         "Agent",
         back_populates="sessions",
+        lazy="joined"  # Eager load agent when loading session
     )
 
     messages = relationship(

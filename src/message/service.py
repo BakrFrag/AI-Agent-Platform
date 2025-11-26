@@ -54,16 +54,19 @@ class MessageService:
 
     async def receive_message(self, message_data: MessageRequest) -> Message:
         """Handles receiving a new message and returns the created message."""
-        session_object =  await self.session_service.get_session_by_id(message_data.session_id)   
-        print("session_object:", session_object)
+        session_id = message_data.session_id
+        session_object =  await self.session_service.get_session_by_id(session_id)   
         created_message = await self.add_message(message_data)
-        print("created_message:", created_message)
-        ai_content = await self.client.generate_llm_response(
+        agent_prompt = session_object.agent.prompt
+        conversation_history = await self.repository.get_message_conversion_history(session_id)
+        print("conversation_history:", conversation_history)
+        print("agent prompt:", agent_prompt)
+        ai_content = await self.client.send_text_message(
             session_id = created_message.session_id, 
-            content =  created_message.content
-          #  prompt = session_object.agent.prompt, 
+            content =  created_message.content,
+            prompt = session_object.agent.prompt, 
+            conversation_history=conversation_history
         )
-        print(ai_content)
         ai_message_data = MessageRequest(
                 session_id=created_message.session_id,
                 role=MessageRole.ASSISTANT,
