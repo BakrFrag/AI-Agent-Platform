@@ -46,6 +46,8 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 
 from src.agent.models import Agent
+from src.session.models import Session
+from src.message.models import Message
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
 
