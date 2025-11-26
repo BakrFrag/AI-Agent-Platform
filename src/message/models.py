@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from src.common.orm_base import Base
-from .schemas import MessageType, MessageRole
+from .types import MessageType, MessageRole
 class Message(Base):
     """
     Message - A single message in a conversation

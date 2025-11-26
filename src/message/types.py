@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-class MeesageRole(StrEnum):
+class MessageRole(StrEnum):
     """Role of the message sender"""
     USER = "user"       
     ASSISTANT = "assistant"

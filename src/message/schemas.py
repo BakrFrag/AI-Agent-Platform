@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
-from .schemas import MessageType, MessageRole
+from .types import MessageType, MessageRole
 
 class TextMessageRequest(BaseModel):
     message: str = Field(..., min_length=2, max_length=4000)
