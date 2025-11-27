@@ -40,10 +40,7 @@ class MessageService:
     async def add_message(self, message_data: MessageRequest) -> Message:
 
         """Creates a new message with basic validation."""
-        print("at begging ----------------------------------------- of add_message")
-        print(message_data)
         message = self.generate_user_message(message_data) if message_data.role == MessageRole.USER else self.generate_assistant_message(message_data)
-        print("message ---->", message)
         return await self.repository.create(message)
 
 
@@ -62,7 +59,7 @@ class MessageService:
         ai_content = await self.client.send_text_message(
             session_id = created_message.session_id, 
             content =  created_message.content,
-            prompt = session_object.agent.prompt, 
+            prompt = agent_prompt, 
             conversation_history=conversation_history
         )
         ai_message_data = MessageRequest(
@@ -73,3 +70,21 @@ class MessageService:
             )
         ai_message = await self.add_message(ai_message_data)
         return ai_message
+    
+
+    async def receive_voice_message(self, session_id: int, voice_note) -> Message:
+        """Handles receiving a new voice note message and returns the created message."""
+        session_object =  await self.session_service.get_session_by_id(session_id)   
+        audio_content = await voice_note.file.read()
+        ai_content = await self.client.speech_to_text(
+            audio_data=audio_content,
+            model="whisper-1"
+        )
+        user_message_data = MessageRequest(
+                session_id=session_id,
+                role=MessageRole.USER,
+                type=MessageType.TEXT,
+                content=ai_content
+            )
+        user_message = await self.add_message(user_message_data)
+        return user_message

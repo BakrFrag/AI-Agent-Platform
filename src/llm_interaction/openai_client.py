@@ -3,12 +3,12 @@ from pathlib import Path
 from typing import Optional
 from openai import AsyncOpenAI
 from src.core import settings, logger
-from .client_repository import LLMClientInterface
+
 
 OPEN_API_API_KEY = settings.OPENAI_API_KEY
 
 
-class AsyncOpenAIClient(LLMClientInterface):
+class AsyncOpenAIClient:
     """
     Async wrapper around OpenAI for:
       - text -> text conversation
@@ -65,12 +65,10 @@ class AsyncOpenAIClient(LLMClientInterface):
         messages.append({"role": "system", "content": prompt} )  if prompt else None
         messages.extend(conversation_history)
         messages.append({"role": "user", "content": content})
-        logger.debug(f"Constructed messages for OpenAI: {messages}")
         response = await self.client.responses.create(
             model=self.text_model,
             input = content
         )
-
         logger.debug(f"Received response from OpenAI for message {content} within session {session_id}: {response}")
         return response.output_text 
 
