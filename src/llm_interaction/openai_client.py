@@ -44,8 +44,8 @@ class AsyncOpenAIClient(LLMClientInterface):
         self,
         content: str,
         session_id: int,
-        prompt: Optional[str] = None,
-        conversation_history: Optional[list[dict]] = None,
+        prompt: Optional[str] = "",
+        conversation_history: Optional[list[dict]] =[],
     ) -> str:
         """
         Send a user message and get a text response.
@@ -62,14 +62,13 @@ class AsyncOpenAIClient(LLMClientInterface):
         logger.debug(f"Sending message to OpenAI: {content} within session {session_id} and system prompt: {prompt} including {len(conversation_history) if conversation_history else 0} previous messages")
 
         messages: list[dict] = []
-        if conversation_history:  messages.extend(conversation_history)           
+        messages.append({"role": "system", "content": prompt} )  if prompt else None
+        messages.extend(conversation_history)
         messages.append({"role": "user", "content": content})
         logger.debug(f"Constructed messages for OpenAI: {messages}")
         response = await self.client.responses.create(
             model=self.text_model,
-            input = content,
-            prompt = prompt,
-            conversation_history=conversation_history
+            input = content
         )
 
         logger.debug(f"Received response from OpenAI for message {content} within session {session_id}: {response}")

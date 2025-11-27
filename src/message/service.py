@@ -59,8 +59,6 @@ class MessageService:
         created_message = await self.add_message(message_data)
         agent_prompt = session_object.agent.prompt
         conversation_history = await self.repository.get_message_conversion_history(session_id)
-        print("conversation_history:", conversation_history)
-        print("agent prompt:", agent_prompt)
         ai_content = await self.client.send_text_message(
             session_id = created_message.session_id, 
             content =  created_message.content,
