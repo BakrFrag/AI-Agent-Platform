@@ -7,7 +7,7 @@ class VoiceJob(Base):
 
     __tablename__ = "voice_jobs"
     
-    session_id = Column(String, index=True)
+    
     status = Column(SqlEnum(VoiceJobStatus), default= VoiceJobStatus.PENDING)  # PENDING, PROCESSING, COMPLETED, FAILED
     user_audio_path = Column(String)
     voice_to_text = Column(Text, nullable=True)
