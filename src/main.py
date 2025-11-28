@@ -1,14 +1,16 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-
 from src.core import settings, logger
-
-# Feature Routers
+#Routers
 from src.agent import  agent_router
 from src.session import session_router
 from src.message import message_router
-
-
+# Exception Handlers
+from src.exceptions import (
+    sqlalchemy_exception_handler,
+    openai_exception_handler, 
+    openai_exception_handle
+)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -17,7 +19,6 @@ async def lifespan(app: FastAPI):
     logger.info(f"Application starting in {settings.ENV} environment. Version: {settings.APP_VERSION}")
     yield # Application continues here, ready to serve requests
     logger.info("Application shutdown initiated.")
-    # Perform cleanup tasks if necessary
     
 
 app = FastAPI(
@@ -32,14 +33,16 @@ app = FastAPI(
 # Define the base API prefix using the centralized version
 API_PREFIX = f"/api/{settings.APP_VERSION}"
 
-# ==============================================================================
+
 # ROUTERS
-# Mount all feature domain routers under the main application
-# ==============================================================================
+
 
 app.include_router(agent_router, prefix=API_PREFIX)
 app.include_router(session_router, prefix=API_PREFIX)
 app.include_router(message_router, prefix=API_PREFIX)
+
+# exception handlers
+app.add_exception_handler(Exception, openai_exception_handler)
 
 @app.get("/health/check/", tags=["System"])
 async def health_check():

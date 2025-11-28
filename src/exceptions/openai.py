@@ -133,14 +133,3 @@ async def openai_exception_handler(request: Request, exc: Exception):
                 "message": str(exc)
             }
         )
-    
-    # Catch-all for other OpenAI exceptions
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "error": "OpenAI error",
-            "detail": "An unexpected error occurred with OpenAI",
-            "type": "OpenAIError",
-            "message": str(exc)
-        }
-    )

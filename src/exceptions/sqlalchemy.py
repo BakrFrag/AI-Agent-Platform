@@ -1,4 +1,5 @@
-from fastapi import Request, status
+import sqlite3
+from fastapi import Request, status, FastAPI
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import (
     IntegrityError,
@@ -9,21 +10,14 @@ from sqlalchemy.exc import (
     ProgrammingError,
     SQLAlchemyError
 )
-import sqlite3
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
+from src.core import logger
 
 
 async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
     """Global handler for all SQLAlchemy exceptions including SQLite-specific errors"""
     
-    # Log the full error for debugging
+   
     logger.error(f"SQLAlchemy error on {request.url.path}: {str(exc)}", exc_info=True)
-    
-    # Extract the original SQLite error if available
     sqlite_error = None
     if hasattr(exc, 'orig') and isinstance(exc.orig, sqlite3.Error):
         sqlite_error = exc.orig
@@ -121,15 +115,7 @@ async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
             }
         )
     
-    # Catch-all for other SQLAlchemy errors
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "error": "Database error",
-            "detail": "An unexpected database error occurred",
-            "type": "SQLAlchemyError"
-        }
-    )
+   
 
 
 async def sqlite_exception_handler(request: Request, exc: sqlite3.Error):
@@ -145,14 +131,9 @@ async def sqlite_exception_handler(request: Request, exc: sqlite3.Error):
         }
     )
 
-
-def register_exception_handlers(app):
+def register_sqlalchemy_handlers(app: FastAPI):
     """
-    Register all exception handlers with the FastAPI app
-    
-    Usage:
-        from exceptions import register_exception_handlers
-        register_exception_handlers(app)
+    Registers the SQLite handler (and others) to the FastAPI app.
     """
-    app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
     app.add_exception_handler(sqlite3.Error, sqlite_exception_handler)
+    app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
