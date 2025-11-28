@@ -40,9 +40,7 @@ class AgentService:
     async def update_agent(self, agent_id: int, agent_data: AgentUpdate) -> Agent:
         """Updates an Agent, ensuring it exists first."""
         await self.get_agent(agent_id) 
-        print(agent_data)
         update_dict = agent_data.model_dump(exclude_none=True)
-        print("update dict:", update_dict)
         if not update_dict:
              raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

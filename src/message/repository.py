@@ -31,8 +31,6 @@ class MessageRepository(AbstractRepository[Message, int]):
             The newly created message object with generated IDs/timestamps.
         """
         try:
-            print("entity in repo create:", entity)
-            
             self.session.add(entity)
             await self.session.flush() 
             await self.session.refresh(entity)

@@ -56,7 +56,6 @@ async def update_agent(
     service: AgentService = Depends(get_agent_service)
 ):
     """Updates the name, system prompt, or active status of an AI Agent."""
-    print("model dump:", agent_data.model_dump())
     return await service.update_agent(agent_id, agent_data)
 
 @router.delete(
