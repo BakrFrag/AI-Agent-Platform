@@ -12,8 +12,8 @@ sqlalchemy = "^2.0.44"
 alembic = "^1.17.2"
 aiosqlite = "^0.21.0"
 openapi = "^2.0.0"
-openai = "^2.8.1"
 python-magic = "^0.4.27"
+openai = {version = ">=1.0.0b1", allow-prereleases = true}
 
 
 [build-system]

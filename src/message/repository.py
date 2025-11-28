@@ -109,7 +109,7 @@ class MessageRepository(AbstractRepository[Message, int]):
     
     
     
-    async def get_message_conversion_history(self, session_id: int, number_of_messages: int = 10) -> list[dict]:
+    async def get_message_conversion_history(self, session_id: int, number_of_messages: int = 2) -> list[dict]:
         """
         retrieve all messages in the database and return as list of dict with role and content keys
         """

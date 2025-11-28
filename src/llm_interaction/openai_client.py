@@ -28,7 +28,7 @@ class AsyncOpenAIClient:
         self,
         text_model: str = "gpt-5.1",
         tts_model: str = "gpt-4o-mini-tts",  
-        stt_model: str = "gpt-4o-mini-audio",
+        stt_model: str = "gpt-4o-mini-transcribe",
         max_retries: int = 3,
         base_retry_delay: float = 0.5
     ) -> None:
@@ -93,7 +93,7 @@ class AsyncOpenAIClient:
         self,
         text: str,
         voice: str = "alloy",   
-        format: str = "wav",   
+        format: str = "mp3",   
     ) -> bytes:
         """
         Convert text to speech and save to `output_path`.
@@ -104,16 +104,13 @@ class AsyncOpenAIClient:
         Returns: 
             Bytes of the synthesized audio file.
         """
-
-        voice = BytesIO.read(text)
         result = await self.client.audio.speech.create(
             model=self.tts_model,
             voice=voice,
             input=text,
-            format=format,
+            response_format=format
         )
-        audio_data_b64 = getattr(result, "audio", None) or result.get("audio")  
-        audio_bytes = base64.b64decode(audio_data_b64)
+        audio_bytes = await result.aread()
         logger.debug(f"TTS generated audio bytes length: {len(audio_bytes)} for text: {text!r}")
         return audio_bytes
     
@@ -132,20 +129,21 @@ class AsyncOpenAIClient:
         Returns:
             transcript text
         """
-        voice_note = BytesIO.read(voice_note)
+        voice_note = BytesIO(voice_note)
+        voice_note.name = "voice_note.mp3"
         transcription = await self.client.audio.transcriptions.create(
             model=self.stt_model,
             file= voice_note,
             prompt=prompt,
             language=language,
         )
-
+      
         transcript = getattr(transcription, "text", None) or transcription.get("text")
-        logger.debug(f"STT transcript: {transcript!r}")
+        logger.debug(f"STT transcript: {transcript}")
         return transcript
     
 
-
+####### not fully supported
     async def _parse_responses_tts_output(
         self,
         session_id: int,
@@ -214,6 +212,7 @@ class AsyncOpenAIClient:
             input=messages,
             audio={"voice": voice, "format": audio_format},
         )
+        print("Response from OpenAI with TTS:", resp)
 
         return await self._parse_responses_tts_output(session_id, resp)
 

@@ -21,9 +21,3 @@ class Message(BaseModel):
     
     class Config:
         from_attributes = True
-
-# class ConversationResponse(BaseModel):
-#     """Response containing both user and assistant messages"""
-#     user_message: Message
-#     assistant_message: Message
-#     session_id: int

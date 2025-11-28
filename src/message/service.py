@@ -96,27 +96,32 @@ class MessageService:
         """Handles receiving a new voice note message and returns the created message."""
         session_object =  await self._get_session_object(session_id) 
         if not await ensure_valid_audio(voice_note):
+            logger.error(f"Invalid audio file format or corrupted file for session {session_id}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid audio file format or corupted file."
             )
-        voice_note_file_object = BytesIO(voice_note)
+        logger.debug(f"uploaded file is valid audio for session {session_id}")
+       
         llm_stt = await self.client.speech_to_text(
-            audio_data= voice_note_file_object,
-            model="whisper-1")
-        # getting the text equvlant to voice note and saving as user message
-        stt_message = await self._add_message({"session_id": session_id, "role": MessageRole.USER, "type": MessageType.VOICE, "content": llm_stt.text})
-        self.logger.debug(f"Transcribed voice note to text: {stt_message}")
-        # now getting AI response to the transcribed text
+            voice_note = voice_note)
+          
+        stt_message = await self._add_message(MessageRole.USER , {"session_id": session_id,  "type": MessageType.VOICE, "content": llm_stt})
+        logger.debug(f"Transcribed voice note to text: {stt_message}")
         agent_prompt = session_object.agent.prompt
         conversation_history = await self._get_conversion_history(session_id)
-        text, speech = await self.client.send_text_with_tts(
+        text = await self.client.send_text_message(
             session_id = stt_message.session_id, 
             content =  stt_message.content,
             prompt = agent_prompt, 
             conversation_history= conversation_history
         )
-        logger.debug(f"Generated AI text response: {text} and audio response of length {len(speech)} bytes for session {session_id}")
-        self._add_message({"session_id": session_id, "role": MessageRole.ASSISTANT, "type": MessageType.TEXT, "content": text})
-        return speech
-        
+        logger.debug(f"Generated AI text response: {text} and audio response for session {session_id}")
+        await self._add_message(MessageRole.ASSISTANT,{"session_id": session_id, "type": MessageType.TEXT, "content": text})
+        speech_bytes = await self.client.text_to_speech(
+            text = text[:4000],
+            voice = "alloy",   
+            format = "mp3"  
+        )
+       
+        return speech_bytes

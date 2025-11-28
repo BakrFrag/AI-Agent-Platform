@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, status, File, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from .schemas import MessageRequest, Message
 from .dependency  import get_message_service
 from .service import MessageService
@@ -33,8 +33,15 @@ async def receive_voice_message(
     service: MessageService = Depends(get_message_service)
 ):
     """Creates a new message"""
-
-    return await service.receive_voice_message(session_id, voice_note)
+    voice_note_bytes = await voice_note.read()
+    voice_file = await service.receive_voice_message(session_id, voice_note_bytes)
+    return Response(
+        content=voice_file,
+        media_type="audio/mpeg",  # for mp3
+        headers={
+            "Content-Disposition": 'inline; filename="speech.mp3"'
+        },
+    )
 
 
 @router.get(
