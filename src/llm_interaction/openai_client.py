@@ -1,4 +1,5 @@
 import os
+from io import BytesIO 
 from pathlib import Path
 from typing import Optional
 from openai import AsyncOpenAI
@@ -56,7 +57,7 @@ class AsyncOpenAIClient:
         logger.debug(f"Generated LLM input messages for session {session_id}: {messages}")
         return messages
     
-    
+
     async def send_text_message(
         self,
         content: str,
@@ -76,15 +77,13 @@ class AsyncOpenAIClient:
             ]
         :return: assistant response text
         """
+        messages = await self._generate_llm_input(
+            user_message=content,session_id=session_id,
+            prompt=prompt, conversation_history=conversation_history)
         logger.debug(f"Sending message to OpenAI: {content} within session {session_id} and system prompt: {prompt} including {len(conversation_history) if conversation_history else 0} previous messages")
-
-        messages: list[dict] = []
-        messages.append({"role": "system", "content": prompt} )  if prompt else None
-        messages.extend(conversation_history)
-        messages.append({"role": "user", "content": content})
         response = await self.client.responses.create(
             model=self.text_model,
-            input = content
+            input = messages
         )
         logger.debug(f"Received response from OpenAI for message {content} within session {session_id}: {response}")
         return response.output_text 
@@ -125,33 +124,26 @@ class AsyncOpenAIClient:
     
     async def speech_to_text(
         self,
-        audio_path: str | Path,
-        *,
+        voice_note: bytes,
         prompt: Optional[str] = None,
         language: Optional[str] = None,
     ) -> str:
         """
         Transcribe speech from a local audio file to text.
-
-        :param audio_path: path to an audio file (wav, mp3, m4a, etc.)
-        :param prompt: optional transcription hint
-        :param language: optional language hint (e.g. 'en', 'ar')
-        :return: transcript text
+        Args:
+            audio_path: path to an audio file (wav, mp3, m4a, etc.)
+            prompt: optional transcription hint
+            language: optional language hint (e.g. 'en', 'ar')
+        Returns:
+            transcript text
         """
-
-        audio_path = Path(audio_path)
-        if not audio_path.exists():
-            raise FileNotFoundError(f"Audio file not found: {audio_path}")
-
-        with audio_path.open("rb") as f:
-            transcription = await self.client.audio.transcriptions.create(
-                model=self.stt_model,
-                file=f,
-                prompt=prompt,
-                language=language,
-            )
-
-        # The field name can vary by model; usually `text`
+        voice_note = BytesIO.read(voice_note)
+        transcription = await self.client.audio.transcriptions.create(
+            model=self.stt_model,
+            file= voice_note,
+            prompt=prompt,
+            language=language,
+        )
         return getattr(transcription, "text", "")
 
 
