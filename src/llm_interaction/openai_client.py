@@ -144,7 +144,10 @@ class AsyncOpenAIClient:
             prompt=prompt,
             language=language,
         )
-        return getattr(transcription, "text", "")
+
+        transcript = getattr(transcription, "text", None) or transcription.get("text")
+        logger.debug(f"STT transcript: {transcript!r}")
+        return transcript
 
 
 
