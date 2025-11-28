@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = {extras = ["all"], version = "^0.121.3"}
-celery = "^5.5.3"
 sqlalchemy = "^2.0.44"
 alembic = "^1.17.2"
 aiosqlite = "^0.21.0"

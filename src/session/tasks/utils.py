@@ -1,5 +1,5 @@
 import aiofiles
-import magic   # pip install python-magic
+import magic   
 from typing import Iterable
 
 
