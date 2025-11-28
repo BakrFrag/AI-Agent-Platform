@@ -1,7 +1,6 @@
-import aiofiles
 import magic   
 from typing import Iterable
-
+from src.core import logger
 
 ALLOWED_AUDIO_MIME: set[str] = {
     "audio/mpeg",          # .mp3
@@ -15,25 +14,23 @@ ALLOWED_AUDIO_MIME: set[str] = {
 
 
 async def ensure_valid_audio(
-    file_path: str,
-    allowed_mime: Iterable[str] = ALLOWED_AUDIO_MIME,
-    chunk_size: int = 2048,
+    audio_bytes: bytes,
+    chunk_size: int = 4096,
 ) -> bool:
-    """
-    Validate that a file is a correct audio type.
+        """
+        Validate that the given in-memory bytes look like a supported audio file.
+        Raises ValueError if invalid.
+        """
 
-    Checks:
-    1. File exists & accessible
-    2. MIME type using libmagic
-    3. Content-based signature detection
-    """
-    # Read a small chunk asynchronously
-    try:
-        async with aiofiles.open(file_path, "rb") as f:
-            header = await f.read(chunk_size)
-    except Exception as e:
-        raise ValueError(f"File cannot be opened: {e}")
-    mime = magic.from_buffer(header, mime=True)
-    if mime not in allowed_mime:
-        raise ValueError(f"Invalid audio type: detected '{mime}'")
-    return True
+        try:
+            if not audio_bytes:
+                raise ValueError("Empty audio data")
+            header = audio_bytes[:chunk_size]
+            mime = magic.from_buffer(header, mime=True)
+            logger.debug(f"Detected audio MIME type: {mime}")
+            if mime not in ALLOWED_AUDIO_MIME:
+                raise ValueError(f"Invalid audio MIME type: {mime} and not in allowed types: {ALLOWED_AUDIO_MIME}")
+            return True
+        except Exception as exc:
+            logger.error(f"Error validating audio data: {str(exc)}")
+            return False
