@@ -101,10 +101,13 @@ class MessageService:
         # now getting AI response to the transcribed text
         agent_prompt = session_object.agent.prompt
         conversation_history = await self._get_conversion_history(session_id)
-        ai_content = await self.client.send_text_message(
+        text, speech = await self.client.send_text_with_tts(
             session_id = stt_message.session_id, 
             content =  stt_message.content,
             prompt = agent_prompt, 
             conversation_history= conversation_history
         )
+        logger.debug(f"Generated AI text response: {text} and audio response of length {len(speech)} bytes for session {session_id}")
+        self._add_message({"session_id": session_id, "role": MessageRole.ASSISTANT, "type": MessageType.TEXT, "content": text})
+        return speech
         
