@@ -18,7 +18,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         )
     raise exc
 
-def register_http_handlers(app: FastAPI):
+def register_http_handler(app: FastAPI):
     """
     Registers the HTTPException handler to the FastAPI app.
     """

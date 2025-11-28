@@ -1,4 +1,4 @@
-from fastapi import Request, status
+from fastapi import Request, status, FastAPI
 from fastapi.responses import JSONResponse
 from openai import (
     APIError,
@@ -133,3 +133,9 @@ async def openai_exception_handler(request: Request, exc: Exception):
                 "message": str(exc)
             }
         )
+
+def register_openai_handler(app: FastAPI):
+    """
+    Registers the OpenAI exception handler to the FastAPI app.
+    """
+    app.add_exception_handler(Exception, openai_exception_handler)      

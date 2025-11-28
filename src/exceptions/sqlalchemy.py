@@ -131,7 +131,7 @@ async def sqlite_exception_handler(request: Request, exc: sqlite3.Error):
         }
     )
 
-def register_sqlalchemy_handlers(app: FastAPI):
+def register_sqlalchemy_handler(app: FastAPI):
     """
     Registers the SQLite handler (and others) to the FastAPI app.
     """

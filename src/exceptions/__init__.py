@@ -1,8 +1,7 @@
-from src.exceptions.sqlalchemy import (sqlalchemy_exception_handler, sqlite_exception_handler)
-from src.exceptions.openai import (openai_exception_handle)
+from src.exceptions import (register_sqlalchemy_handler, register_openai_handler, register_http_handler)
 
 __all__ = [
-    "sqlalchemy_exception_handler",
-    "sqlite_exception_handler",
-    "openai_exception_handler"
+    "register_sqlalchemy_handler",
+    "register_openai_handler",
+    "register_http_handler"
 ]
