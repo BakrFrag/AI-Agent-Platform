@@ -17,29 +17,28 @@ class MessageService:
         self.repository = MessageRepository(session)
         self.client = AsyncOpenAIClient()
         self.session_service = SessionService(session)
-    
-    def _generate_assistant_message(self, session_id: int, ai_response_content: str) -> MessageModel:
+    def _generate_assistant_message(self, session_id: int, content: str, type: MessageType) -> MessageModel:
         """Creates a new assistant message. save llm responses"""
         message_data = MessageRequest(
             session_id= session_id,
             role=MessageRole.ASSISTANT,
             type=MessageType.TEXT,
-            content= ai_response_content
+            content= content
         )
         return MessageModel(**message_data.model_dump())
 
-    def _generate_user_message(self, session_id: int, message_type: MessageType, user_query: str) -> MessageModel:
+    def _generate_user_message(self, session_id: int,type: MessageType, content: str) -> MessageModel:
         """Creates a new user message."""
         message_data = MessageRequest(
             session_id= session_id,
             role=MessageRole.USER,
-            type=MessageType.TEXT if message_type == MessageType.TEXT else MessageType.VOICE,
-            content= user_query
+            type=MessageType.TEXT if type == MessageType.TEXT else MessageType.VOICE,
+            content= content
         )
         return MessageModel(**message_data.model_dump())
     
         
-    async def _add_message(self, role: MessageRole, **kwargs) -> Message:
+    async def _add_message(self, role: MessageRole, kwargs) -> Message:
 
         """Creates a new message with basic validation."""
         message = self._generate_user_message(** kwargs) if role == MessageRole.USER else self._generate_assistant_message(**kwargs)
@@ -60,27 +59,37 @@ class MessageService:
         conversation_history = await self.repository.get_message_conversion_history(session_id)
         return conversation_history
 
-    async def receive_text_message(self, message_data: MessageRequest) -> Message:
+    async def receive_text_message(self, session_id: int, content: str) -> Message:
         """Handles receiving a new message and returns the created message."""
-        session_id = message_data.session_id
-        session_object =  await self._get_session_object(session_id)   
-        created_message = await self._add_message(message_data.role, **message_data.model_dump())
-        agent_prompt = session_object.agent.prompt
-        conversation_history = await self._get_conversion_history(session_id)
-        ai_content = await self.client.send_text_message(
-            session_id = created_message.session_id, 
-            content =  created_message.content,
-            prompt = agent_prompt, 
-            conversation_history= conversation_history
-        )
-        ai_message_data = MessageRequest(
-                session_id=created_message.session_id,
-                role=MessageRole.ASSISTANT,
-                type=MessageType.TEXT,
-                content=ai_content
+        try:
+            session_object =  await self._get_session_object(session_id)   
+            print("Session Object:", session_object)
+            print(MessageRole.USER, {"session_id": session_id, "type":MessageType.TEXT, "content":content})
+            created_message = await self._add_message(MessageRole.USER, {"session_id": session_id, "type":MessageType.TEXT, "content":content})
+            agent_prompt = session_object.agent.prompt
+            print("agent prompt:", agent_prompt)
+            conversation_history = await self._get_conversion_history(session_id)
+            ai_content = await self.client.send_text_message(
+                session_id = created_message.session_id, 
+                content =  created_message.content,
+                prompt = agent_prompt, 
+                conversation_history= conversation_history
             )
-        ai_message = await self._add_message(ai_message_data)
-        return ai_message
+            logger.debug(f"Generated AI text response: {ai_content} for session {session_id}")
+            ai_message = await self._add_message(MessageRole.ASSISTANT, {
+                "session_id": session_id, 
+                "type":MessageType.TEXT, 
+                "content":ai_content
+            })
+            return ai_message
+        except Exception as e:
+            import sys
+            print(sys.exc_info())
+            logger.error(f"Error processing text message for session {session_id}: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="An error occurred while processing the message."
+            )
     
 
     async def receive_voice_message(self, session_id: int, voice_note: bytes) -> Message:

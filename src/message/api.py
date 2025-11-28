@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, status, File, UploadFile
 from fastapi.responses import FileResponse
-from .schemas import MessageRequest, Message, ConversationResponse
+from .schemas import MessageRequest, Message
 from .dependency  import get_message_service
 from .service import MessageService
 
@@ -9,7 +9,7 @@ from .service import MessageService
 router = APIRouter(prefix="/message", tags=["Messages"])
 
 @router.post(
-    "/message/text", 
+    "/text", 
     response_model=Message, 
     status_code=status.HTTP_201_CREATED,
     summary="Create a new Message"
@@ -19,10 +19,10 @@ async def receive_text_message(
     service: MessageService = Depends(get_message_service)
 ):
     """Creates a new message"""
-    return await service.receive_message(message_data)
+    return await service.receive_text_message(message_data.session_id, content = message_data.content)
 
 @router.post(
-    "/message/voice", 
+    "/voice", 
     response_model=Message, 
     status_code=status.HTTP_201_CREATED,
     summary="Create a new Message voice note"

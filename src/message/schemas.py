@@ -17,15 +17,13 @@ class Message(BaseModel):
     role: MessageRole
     content: str
     type: MessageType
-    audio_url: Optional[str] = None
     created_at: datetime
-    updated_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
 
-class ConversationResponse(BaseModel):
-    """Response containing both user and assistant messages"""
-    user_message: Message
-    assistant_message: Message
-    session_id: int
+# class ConversationResponse(BaseModel):
+#     """Response containing both user and assistant messages"""
+#     user_message: Message
+#     assistant_message: Message
+#     session_id: int
