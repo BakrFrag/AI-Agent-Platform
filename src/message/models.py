@@ -20,10 +20,7 @@ class Message(Base):
     )
     role = Column(SQLEnum(MessageRole), nullable=False)  # "user" or "assistant"
     content = Column(Text, nullable=False)  # The actual text content
-    type = Column(SQLEnum(MessageType), default=MessageType.TEXT, nullable=False)
-    audio_url = Column(String(500), nullable=True)
-    
+    type = Column(SQLEnum(MessageType), default=MessageType.TEXT, nullable=False)  # "text" or "voice"
     session = relationship("Session", back_populates="messages")
-    
     def __repr__(self):
         return f"<Message(id={self.id}, session_id={self.session_id}, role='{self.role}', type='{self.type}')>"

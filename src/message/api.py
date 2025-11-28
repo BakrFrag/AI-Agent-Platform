@@ -27,8 +27,8 @@ async def receive_text_message(
     summary="Create a new Message voice note"
 )
 async def receive_voice_message(
-    voice_note:UploadFile =  File(),
     session_id: int,
+    voice_note:UploadFile =  File(),
     service: MessageService = Depends(get_message_service)
 ):
     """Creates a new message"""
