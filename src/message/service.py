@@ -113,5 +113,4 @@ class MessageService:
             voice = "alloy",   
             format = "mp3"  
         )
-       
         return speech_bytes

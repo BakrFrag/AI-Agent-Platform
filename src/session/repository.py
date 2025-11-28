@@ -29,17 +29,14 @@ class SessionRepository(AbstractRepository[Session, int]):
         Returns:
             The newly created Session object with generated IDs/timestamps.
         """
-        try:
-            self.session.add(entity)
-            await self.session.flush() 
-            await self.session.refresh(entity)
-            await self.session.commit()
-            logger.info(f"Session created successfully with ID: {entity.id}")
-            return entity
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            logger.error(f"DB Error creating session: {e}", exc_info=True)
-            raise
+        
+        self.session.add(entity)
+        await self.session.flush() 
+        await self.session.refresh(entity)
+        await self.session.commit()
+        logger.info(f"Session created successfully with ID: {entity.id}")
+        return entity
+        
 
     async def get_by_id(self, entity_id: int) -> Optional[Session]:
         """Retrieves a Session by its primary key (ID)."""
@@ -56,46 +53,33 @@ class SessionRepository(AbstractRepository[Session, int]):
             return await self.get_by_id(session_id) 
 
         update_data['updated_at'] = datetime.datetime.now() 
-
-        try:
-            stmt = (
-                update(Session)
-                .where(Session.id == session_id)
-                .values(**update_data)
-                .execution_options(synchronize_session="fetch")
-            )
-            
-            result = await self.session.execute(stmt)
-            await self.session.commit() 
-            
-            if result.rowcount == 0:
-                logger.warning(f"Update failed: Session ID {session_id} not found.")
-                return None
-                
-            logger.info(f"Session ID {session_id} updated successfully.")
-            return await self.get_by_id(session_id)
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            logger.error(f"DB Error updating session ID {session_id}: {e}", exc_info=True)
-            raise
-
+        stmt = (
+            update(Session)
+            .where(Session.id == session_id)
+            .values(**update_data)
+            .execution_options(synchronize_session="fetch")
+        )
+        
+        result = await self.session.execute(stmt)
+        await self.session.commit() 
+        
+        if result.rowcount == 0:
+            logger.warning(f"Update failed: Session ID {session_id} not found.")
+            return None
+        logger.info(f"Session ID {session_id} updated successfully.")
+        return await self.get_by_id(session_id)
+        
 
     async def delete_by_id(self, entity_id: int) -> bool:
         """Deletes a Session by ID."""
-        try:
-            stmt = delete(Session).where(Session.id == entity_id)
-            result = await self.session.execute(stmt)
-            await self.session.commit() 
-            if result.rowcount > 0:
-                logger.info(f"Session ID {entity_id} deleted successfully.")
-                return True
-            return False
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            logger.error(f"DB Error deleting session ID {entity_id}: {e}", exc_info=True)
-            raise
-
-
+        stmt = delete(Session).where(Session.id == entity_id)
+        result = await self.session.execute(stmt)
+        await self.session.commit() 
+        if result.rowcount > 0:
+            logger.info(f"Session ID {entity_id} deleted successfully.")
+            return True
+        return False
+        
     async def get_all(self, skip: int = 0, limit: int = 100) -> Sequence[Session]:
         """Retrieves a list of Agents with pagination."""
         stmt = select(Session).offset(skip).limit(limit).order_by(Session.id)

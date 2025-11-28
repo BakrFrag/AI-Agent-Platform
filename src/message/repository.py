@@ -30,17 +30,14 @@ class MessageRepository(AbstractRepository[Message, int]):
         Returns:
             The newly created message object with generated IDs/timestamps.
         """
-        try:
-            self.session.add(entity)
-            await self.session.flush() 
-            await self.session.refresh(entity)
-            await self.session.commit()
-            logger.info(f"message created successfully with ID: {entity.id}")
-            return entity
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            logger.error(f"DB Error creating message: {e}", exc_info=True)
-            raise
+        
+        self.session.add(entity)
+        await self.session.flush() 
+        await self.session.refresh(entity)
+        await self.session.commit()
+        logger.info(f"message created successfully with ID: {entity.id}")
+        return entity
+       
 
     async def get_by_id(self, entity_id: int) -> Optional[Message]:
         """Retrieves a message by its primary key (ID)."""
@@ -59,45 +56,37 @@ class MessageRepository(AbstractRepository[Message, int]):
             return await message_object
 
         update_data['updated_at'] = datetime.datetime.now() 
-
-        try:
-            stmt = (
-                update(Message)
-                .where(Message.id == message_id)
-                .values(**update_data)
-                .execution_options(synchronize_session="fetch")
-            )
-            
-            result = await self.session.execute(stmt)
-            await self.session.commit() 
-            
-            if result.rowcount == 0:
-                logger.warning(f"Update failed: message ID {message_id} not found.")
-                return None
-                
-            logger.info(f"Message ID {message_id} updated successfully.")
-            return await self.get_by_id(message_id)
+        stmt = (
+            update(Message)
+            .where(Message.id == message_id)
+            .values(**update_data)
+            .execution_options(synchronize_session="fetch")
+        )
         
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            logger.error(f"DB Error updating Message ID {message_id}: {e}", exc_info=True)
-            raise
+        result = await self.session.execute(stmt)
+        await self.session.commit() 
+        
+        if result.rowcount == 0:
+            logger.warning(f"Update failed: message ID {message_id} not found.")
+            return None
+            
+        logger.info(f"Message ID {message_id} updated successfully.")
+        return await self.get_by_id(message_id)
+    
+    
 
 
     async def delete_by_id(self, entity_id: int) -> bool:
         """Deletes a message by ID."""
-        try:
-            stmt = delete(Message).where(Message.id == entity_id)
-            result = await self.session.execute(stmt)
-            await self.session.commit() 
-            if result.rowcount > 0:
-                logger.info(f"Message ID {entity_id} deleted successfully.")
-                return True
-            return False
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            logger.error(f"DB Error deleting Message ID {entity_id}: {e}", exc_info=True)
-            raise
+        
+        stmt = delete(Message).where(Message.id == entity_id)
+        result = await self.session.execute(stmt)
+        await self.session.commit() 
+        if result.rowcount > 0:
+            logger.info(f"Message ID {entity_id} deleted successfully.")
+            return True
+        return False
+        
 
     async def get_all(self, session_id: int,  skip: int = 0, limit: int = 100) -> Sequence[Message]:
         """Retrieves a list of messages with pagination. for specfic session"""
