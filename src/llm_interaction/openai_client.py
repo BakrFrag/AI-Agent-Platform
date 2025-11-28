@@ -39,7 +39,24 @@ class AsyncOpenAIClient:
         self.max_retries = max_retries
         self.base_retry_delay = base_retry_delay
         logger.info("Initialized OpenAIChatAndVoiceClient")
-
+    
+    async def _generate_llm_input(
+        self, user_message: str, session_id: int,
+        prompt: Optional[str] = None, conversation_history: Optional[list[dict]] = {}, 
+    ) -> list[dict]:
+        """
+        Generate the input message list for LLM from prompt, history, and user message.
+        """
+        messages: list[dict] = []
+        if prompt:
+            messages.append({"role": "system", "content": prompt})
+        if conversation_history:
+            messages.extend(conversation_history)
+        messages.append({"role": "user", "content": user_message})
+        logger.debug(f"Generated LLM input messages for session {session_id}: {messages}")
+        return messages
+    
+    
     async def send_text_message(
         self,
         content: str,
