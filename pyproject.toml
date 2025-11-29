@@ -3,7 +3,7 @@ name = "ai agent platform"
 version = "0.1.0"
 description = ""
 authors = ["BakrFrag"]
-readme = "README.md"
+#readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
