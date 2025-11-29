@@ -7,7 +7,7 @@ from src.agent.service import AgentService
 from .schemas import SessionCreate, SessionUpdate, Session
 from .repository import SessionRepository
 from .models import Session
-
+from src.common import UUID7Str
 class SessionService:
     """
     Handles the business logic for Session resources, coordinating data access
@@ -36,7 +36,7 @@ class SessionService:
         created_session = await self.session_repo.create(session)
         return await self.get_session_by_id(created_session.id)
 
-    async def get_session_by_id(self, session_id: int) -> Session:
+    async def get_session_by_id(self, session_id: UUID7Str) -> Session:
         """Retrieves a single session by ID."""
         session = await self.session_repo.get_by_id(session_id)
         if not session:
@@ -44,7 +44,7 @@ class SessionService:
         return session
     
    
-    async def update_session(self, session_id: int, update_data: SessionUpdate) -> Session:
+    async def update_session(self, session_id: UUID7Str, update_data: SessionUpdate) -> Session:
         """Updates the title or agent related to session of an existing session."""
 
         session_object = await self.get_session_by_id(session_id)
@@ -58,7 +58,7 @@ class SessionService:
         return updated_session
     
 
-    async def delete_session(self, session_id: int):
+    async def delete_session(self, session_id: UUID7Str):
         """Deletes a session by ID."""
         await self.session_repo.delete_by_id(session_id)
         

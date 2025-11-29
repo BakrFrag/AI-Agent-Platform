@@ -6,6 +6,7 @@ from .schemas import (
     SessionUpdate,
     Session
 )
+from src.common import UUID7Str
 from .dependancy import get_session_service
 from .service import SessionService
 router = APIRouter(prefix="/session",tags=["Sessions"])
@@ -36,7 +37,7 @@ async def create_session(
     summary="Get session metadata by ID"
 )
 async def get_session(
-    session_id: int, 
+    session_id: UUID7Str, 
     service: SessionService = Depends(get_session_service)
 ):
     """
@@ -69,7 +70,7 @@ async def list_sessions(
     summary="Update session title"
 )
 async def update_session(
-    session_id: int,
+    session_id: UUID7Str,
     request: SessionUpdate,
     service: SessionService = Depends(get_session_service)
 ):
@@ -88,7 +89,7 @@ async def update_session(
     summary="Delete a chat session"
 )
 async def delete_session(
-    session_id: int, 
+    session_id: UUID7Str, 
     service: SessionService = Depends(get_session_service)
 ):
     """
