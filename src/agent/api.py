@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, status
 from .schemas import AgentCreate, AgentRead, AgentUpdate
 from .service import AgentService
 from .dependency  import get_agent_service
-
+from src.common import UUID7Str
 
 router = APIRouter(prefix="/agent", tags=["Agents"])
 
@@ -39,7 +39,7 @@ async def list_agents(
     summary="Get a specific AI Agent by ID"
 )
 async def get_agent(
-    agent_id: int,
+    agent_id: UUID7Str,
     service: AgentService = Depends(get_agent_service)
 ):
     """Retrieves a single AI Agent's details."""
@@ -51,7 +51,7 @@ async def get_agent(
     summary="Update an existing AI Agent"
 )
 async def update_agent(
-    agent_id: int,
+    agent_id: UUID7Str,
     agent_data: AgentUpdate,
     service: AgentService = Depends(get_agent_service)
 ):
@@ -64,7 +64,7 @@ async def update_agent(
     summary="Delete an AI Agent"
 )
 async def delete_agent(
-    agent_id: int,
+    agent_id: UUID7Str,
     service: AgentService = Depends(get_agent_service)
 ):
     """Deletes an AI Agent."""

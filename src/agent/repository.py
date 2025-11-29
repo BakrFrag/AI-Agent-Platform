@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.common import AbstractRepository
 from .models import Agent
 from src.core import logger
-
+from src.common import UUID7Str
 class AgentRepository(AbstractRepository[Agent, int]):
     """
     Concrete repository for Agent. All methods are fully async.
@@ -22,13 +22,13 @@ class AgentRepository(AbstractRepository[Agent, int]):
         logger.debug(f"Created new agent with ID: {entity.id}")
         return entity
 
-    async def get_by_id(self, entity_id: int) -> Optional[Agent]:
+    async def get_by_id(self, entity_id: UUID7Str) -> Optional[Agent]:
         """Retrieves an Agent by ID."""
         stmt = select(Agent).where(Agent.id == entity_id)
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
-    async def update(self, agent_id: int, update_data: dict) -> Optional[Agent]:
+    async def update(self, agent_id: UUID7Str, update_data: dict) -> Optional[Agent]:
         """Updates an existing Agent using the bulk update pattern."""
         
         if not update_data:
@@ -43,11 +43,9 @@ class AgentRepository(AbstractRepository[Agent, int]):
         await self.session.execute(stmt)
         await self.session.commit() 
         logger.debug(f"Updated Agent ID: {agent_id}")
-        
-        # Must fetch the updated object to reflect the changes (e.g., updated_at)
         return await self.get_by_id(agent_id)
 
-    async def delete_by_id(self, entity_id: int) -> bool:
+    async def delete_by_id(self, entity_id: UUID7Str) -> bool:
         """Deletes an Agent by ID."""
         stmt = delete(Agent).where(Agent.id == entity_id)
         result = await self.session.execute(stmt)

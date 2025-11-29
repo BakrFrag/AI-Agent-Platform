@@ -19,7 +19,7 @@ class Message(Base):
         index=True  
     )
     role = Column(SQLEnum(MessageRole), nullable=False)  # "user" or "assistant"
-    content = Column(Text(collation='utf8mb4_unicode_ci'), nullable=False)  # The actual text content
+    content = Column(Text, nullable=False)  # The actual text content
     type = Column(SQLEnum(MessageType), default=MessageType.TEXT, nullable=False)  # "text" or "voice"
     session = relationship("Session", back_populates="messages")
     def __repr__(self):
