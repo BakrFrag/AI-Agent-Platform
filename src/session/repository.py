@@ -2,7 +2,6 @@ import datetime
 from typing import Sequence, Optional
 from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import SQLAlchemyError
 from src.common import AbstractRepository
 from .models import Session
 from src.core import logger

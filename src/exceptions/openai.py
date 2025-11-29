@@ -10,7 +10,8 @@ from openai import (
     PermissionDeniedError,
     UnprocessableEntityError,
     InternalServerError,
-    APITimeoutError
+    APITimeoutError, 
+
 )
 from src.core import logger
 
@@ -138,4 +139,4 @@ def register_openai_handler(app: FastAPI):
     """
     Registers the OpenAI exception handler to the FastAPI app.
     """
-    app.add_exception_handler(Exception, openai_exception_handler)      
+    app.add_exception_handler(APIError, openai_exception_handler)      

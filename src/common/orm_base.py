@@ -12,19 +12,9 @@ class Base(AsyncAttrs, DeclarativeBase):
     """
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid7()), index=True)
-    created_at = Column(DateTime, default=None, nullable=True)
+    created_at = Column(DateTime, default=get_cairo_time())
     updated_at = Column(DateTime, default=None, nullable=True)
 
     def __repr__(self):
         return f"<{self.__class__.__name__}(id={self.id})>"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        if self.created_at is None:
-            self.created_at = get_cairo_time()
-
-# Add event listener for all models that inherit from Base
-@event.listens_for(Base, 'before_update', propagate=True)
-def update_updated_at(mapper, connection, target):
-    """Automatically update updated_at timestamp with local time before any update"""
-    target.updated_at = get_cairo_time()

@@ -2,7 +2,8 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from .schemas import AgentCreate, AgentRead, AgentUpdate
 from .service import AgentService
-from .dependency  import get_agent_service
+from .dependency  import get_agent_repository
+from .repository import AgentRepository
 from src.common import UUID7Str
 
 router = APIRouter(prefix="/agent", tags=["Agents"])
@@ -15,9 +16,10 @@ router = APIRouter(prefix="/agent", tags=["Agents"])
 )
 async def create_agent(
     agent_data: AgentCreate,
-    service: AgentService = Depends(get_agent_service)
+    agent_repository: AgentRepository = Depends(get_agent_repository)
 ):
     """Creates a new AI Agent persona."""
+    service = AgentService(agent_repository)
     return await service.create_agent(agent_data)
 
 @router.get(
@@ -28,9 +30,10 @@ async def create_agent(
 async def list_agents(
     skip: int = 0, 
     limit: int = 100,
-    service: AgentService = Depends(get_agent_service)
+    agent_repository: AgentRepository = Depends(get_agent_repository)
 ):
     """Retrieves a list of all defined AI Agents."""
+    service = AgentService(agent_repository)
     return await service.list_agents(skip=skip, limit=limit)
 
 @router.get(
@@ -40,9 +43,10 @@ async def list_agents(
 )
 async def get_agent(
     agent_id: UUID7Str,
-    service: AgentService = Depends(get_agent_service)
+    agent_repository: AgentRepository = Depends(get_agent_repository)
 ):
     """Retrieves a single AI Agent's details."""
+    service = AgentService(agent_repository)
     return await service.get_agent(agent_id)
 
 @router.put(
@@ -53,9 +57,10 @@ async def get_agent(
 async def update_agent(
     agent_id: UUID7Str,
     agent_data: AgentUpdate,
-    service: AgentService = Depends(get_agent_service)
+    agent_repository: AgentRepository = Depends(get_agent_repository)
 ):
     """Updates the name, system prompt, or active status of an AI Agent."""
+    service = AgentService(agent_repository)
     return await service.update_agent(agent_id, agent_data)
 
 @router.delete(
@@ -65,8 +70,9 @@ async def update_agent(
 )
 async def delete_agent(
     agent_id: UUID7Str,
-    service: AgentService = Depends(get_agent_service)
+    agent_repository: AgentRepository = Depends(get_agent_repository)
 ):
     """Deletes an AI Agent."""
+    service = AgentService(agent_repository)
     await service.delete_agent(agent_id)
-    return 
+    return 204
