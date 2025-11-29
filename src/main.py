@@ -6,11 +6,8 @@ from src.agent import  agent_router
 from src.session import session_router
 from src.message import message_router
 # Exception Handlers
-from src.exceptions import (
-   register_sqlalchemy_handler,
-   register_openai_handler,
-   register_http_handler
-)
+from src.exceptions import( register_sqlalchemy_handler, register_openai_handler, register_http_handler)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      target: Development
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - APP_VERSION=${APP_VERSION}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - ENV=${ENV}
+    volumes:
+      - sqlite_data:/app/data
+    depends_on:
+      - sqlite-setup
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health/check')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  sqlite-setup:
+    image: alpine:latest
+    command: |
+      sh -c "
+        mkdir -p /data &&
+        touch /data/app.db &&
+        chmod 666 /data/app.db &&
+        echo 'SQLite database initialized' &&
+        ls -la /data/
+      "
+    volumes:
+      - sqlite_data:/data
+    restart: "no"
+
+volumes:
+  sqlite_data:

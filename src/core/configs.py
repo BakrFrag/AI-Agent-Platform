@@ -13,7 +13,5 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "DEBUG" if ENV == "Development" else "INFO" # logging level as per environment
     model_config = SettingsConfigDict(
         env_file=str(Path(__file__).parent.parent.parent / '.env'),extra='ignore')
-    CELERY_BROKER_URL: str  
-    CELERY_RESULT_BACKEND: str  
 
 settings = Settings()
