@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="AI Agent Platform API (v3 Feature-Centric, Fully Async)",
-    version=settings.APP_VERSION, # Use the centralized version here
+    version=settings.APP_VERSION, 
     description="Backend service for creating and interacting with AI agents. Fully Async w/ SQLAlchemy.",
     lifespan=lifespan,
     docs_url=f"/api/{settings.APP_VERSION}/docs" if settings.ENV != "production" else None,

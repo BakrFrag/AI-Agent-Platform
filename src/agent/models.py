@@ -7,7 +7,7 @@ class Agent(Base):
     SQLAlchemy ORM Model for an AI Agent's definition.
     """
     __tablename__ = "agents"
-    name = Column(String(100), index=True, nullable=False)
+    name = Column(String, index=True, nullable=False)
     prompt = Column(Text, nullable=False)
      
     sessions = relationship(

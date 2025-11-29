@@ -13,7 +13,7 @@ class Message(Base):
 
 
     session_id = Column(
-        Integer, 
+        String(36), 
         ForeignKey("sessions.id", ondelete="CASCADE"),  
         nullable=False,
         index=True  

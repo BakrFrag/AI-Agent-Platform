@@ -13,7 +13,7 @@ class Session(Base):
     
     title = Column(String, default="New Chat Session")
     agent_id = Column(
-        Integer,
+        String(36),
         ForeignKey("agents.id", ondelete="CASCADE"),
         nullable=False,
         index=True,

@@ -1,24 +1,30 @@
-import datetime
-from sqlalchemy import Column, Integer, DateTime, func, event
+
+from uuid_utils import uuid7
+from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import DeclarativeBase, declared_attr
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import event
+from .utils import get_cairo_time
 
 class Base(AsyncAttrs, DeclarativeBase):
     """
     Base class for all SQLAlchemy ORM models, providing common async features.
     """
-    @declared_attr
-    def __tablename__(cls):
-        # Automatically generate table name from class name
-        return cls.__name__.lower()
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime, nullable=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid7()), index=True)
+    created_at = Column(DateTime, default=None, nullable=True)
+    updated_at = Column(DateTime, default=None, nullable=True)
+
     def __repr__(self):
         return f"<{self.__class__.__name__}(id={self.id})>"
-    
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.created_at is None:
+            self.created_at = get_cairo_time()
+
+# Add event listener for all models that inherit from Base
 @event.listens_for(Base, 'before_update', propagate=True)
-def receive_before_update(mapper, connection, target):
-    """Automatically set updated_at before any update"""
-    target.updated_at = datetime.utcnow()
+def update_updated_at(mapper, connection, target):
+    """Automatically update updated_at timestamp with local time before any update"""
+    target.updated_at = get_cairo_time()

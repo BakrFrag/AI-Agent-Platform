@@ -1,6 +1,7 @@
+from typing import Sequence, Optional
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Sequence, Optional
+
 from src.common import AbstractRepository
 from .models import Agent
 from src.core import logger
@@ -15,7 +16,6 @@ class AgentRepository(AbstractRepository[Agent, int]):
     async def create(self, entity: Agent) -> Agent:
         """Adds a new Agent and loads the generated ID."""
         self.session.add(entity)
-        # Flush to get the ID without committing the transaction yet
         await self.session.flush() 
         await self.session.refresh(entity)
         await self.session.commit()
@@ -34,7 +34,6 @@ class AgentRepository(AbstractRepository[Agent, int]):
         if not update_data:
             logger.warning(f"Attempted to update Agent ID {agent_id} with empty data.")
             return await self.get_by_id(agent_id) 
-
         stmt = (
             update(Agent)
             .where(Agent.id == agent_id)
