@@ -1,8 +1,8 @@
 """initial_tables
 
-Revision ID: 0e2df622eca6
+Revision ID: c2db2da7309b
 Revises: 
-Create Date: 2025-11-29 11:11:57.907932
+Create Date: 2025-11-29 11:14:41.499038
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '0e2df622eca6'
+revision: str = 'c2db2da7309b'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -45,7 +45,7 @@ def upgrade() -> None:
     op.create_table('messages',
     sa.Column('session_id', sa.String(length=36), nullable=False),
     sa.Column('role', sa.Enum('USER', 'ASSISTANT', name='messagerole'), nullable=False),
-    sa.Column('content', sa.Text(collation='utf8mb4_unicode_ci'), nullable=False),
+    sa.Column('content', sa.Text(), nullable=False),
     sa.Column('type', sa.Enum('TEXT', 'VOICE', name='messagetype'), nullable=False),
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
