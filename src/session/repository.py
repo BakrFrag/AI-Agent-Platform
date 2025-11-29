@@ -2,9 +2,10 @@ import datetime
 from typing import Sequence, Optional
 from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.common import AbstractRepository
+from src.common import AbstractRepository, UUID7Str
 from .models import Session
 from src.core import logger
+from src.agent import Agent
 
 
 
@@ -37,21 +38,19 @@ class SessionRepository(AbstractRepository[Session, int]):
         return entity
         
 
-    async def get_by_id(self, entity_id: int) -> Optional[Session]:
+    async def get_by_id(self, entity_id: UUID7Str) -> Optional[Session]:
         """Retrieves a Session by its primary key (ID)."""
         stmt = select(Session).where(Session.id == entity_id)
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
-    async def update(self, session_id: int, update_data: dict) -> Optional[Session]:
+    async def update(self, session_id: UUID7Str, update_data: dict) -> Optional[Session]:
         """
         Updates fields of an existing Session.
         """
         if not update_data:
             logger.warning(f"Attempted to update Session ID {session_id} with empty data.")
             return await self.get_by_id(session_id) 
-
-        update_data['updated_at'] = datetime.datetime.now() 
         stmt = (
             update(Session)
             .where(Session.id == session_id)
@@ -69,7 +68,7 @@ class SessionRepository(AbstractRepository[Session, int]):
         return await self.get_by_id(session_id)
         
 
-    async def delete_by_id(self, entity_id: int) -> bool:
+    async def delete_by_id(self, entity_id: UUID7Str) -> bool:
         """Deletes a Session by ID."""
         stmt = delete(Session).where(Session.id == entity_id)
         result = await self.session.execute(stmt)
@@ -84,3 +83,9 @@ class SessionRepository(AbstractRepository[Session, int]):
         stmt = select(Session).offset(skip).limit(limit).order_by(Session.id)
         result = await self.session.execute(stmt)
         return result.scalars().all()
+    
+    async def get_agent(self, entity_id: UUID7Str) -> Optional[Session]:
+        """Retrieves a agent by its primary key (ID)."""
+        stmt = select(Agent).where(Agent.id == str(entity_id))
+        result = await self.session.execute(stmt)
+        return result.scalars().first()

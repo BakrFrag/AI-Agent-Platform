@@ -38,10 +38,6 @@ app.include_router(agent_router, prefix=API_PREFIX)
 app.include_router(session_router, prefix=API_PREFIX)
 app.include_router(message_router, prefix=API_PREFIX)
 
-# # exception handlers)
-# register_sqlalchemy_handler(app)
-# register_openai_handler(app)
-# register_http_handler(app)
 
 
 @app.get("/health/check/", tags=["System"])

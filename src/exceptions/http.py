@@ -8,14 +8,15 @@ async def http_exception_handler(request: Request, exc: HTTPException | Exceptio
     Handles standard FastAPI HTTPExceptions (e.g., 404, 401) and uses the 
     status code defined within the exception itself (exc.status_code).
     """
-    logger.warning(f"HTTPException raised for {request.url.path}: {exc.status_code} - {exc.detail}")
-    
-    if exc.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
-        logger.error(f"Internal Server Error details: {exc.detail}", exc_info=True) 
+    exc_code = hasattr(exc, "status_code")
+    logger.warning(f"HTTPException raised for {request.url.path}: - {str(exc)}")
+    if not exc_code or exc.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
+        logger.error(f"Internal Server Error details: {str(exc)}", exc_info=True) 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error occurred." 
         )
+    logger.error(f"exc code {exc.status_code}")
     raise exc
 
 def register_http_handler(app: FastAPI):

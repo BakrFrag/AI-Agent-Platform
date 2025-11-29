@@ -6,9 +6,11 @@ from .schemas import (
     SessionUpdate,
     Session
 )
-from src.common import UUID7Str
-from .dependancy import get_session_service
+from src.common import UUID7Str, AbstractRepository
+from .dependancy import get_session_repository
 from .service import SessionService
+
+
 router = APIRouter(prefix="/session",tags=["Sessions"])
 
 
@@ -21,14 +23,14 @@ router = APIRouter(prefix="/session",tags=["Sessions"])
 )
 async def create_session(
     request: SessionCreate,
-    service: SessionService = Depends(get_session_service)
+    session_repository: AbstractRepository = Depends(get_session_repository), 
 ):
     """
     Creates a new chat session linked to a specific AI agent.
     """
-   
-    session = await service.create_session(request)
-    return session
+    service: SessionService = SessionService(session_repository)
+    return await service.create_session(request)
+    
    
 
 @router.get(
@@ -38,15 +40,13 @@ async def create_session(
 )
 async def get_session(
     session_id: UUID7Str, 
-    service: SessionService = Depends(get_session_service)
+    repository: AbstractRepository = Depends(get_session_repository)
 ):
     """
     Retrieves the metadata for a specific chat session.
     """
-    session = await service.get_session_by_id(session_id)
-    if session is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
-    return session
+    service: SessionService = SessionService(repository)
+    return await service.get_session_by_id(session_id)
 
 
 @router.get(
@@ -55,32 +55,31 @@ async def get_session(
     summary="List all active chat sessions"
 )
 async def list_sessions(
-     skip: int = 0, 
+    skip: int = 0, 
     limit: int = 100,
-    service: SessionService = Depends(get_session_service)):
+    repository: AbstractRepository = Depends(get_session_repository)):
     """
     Retrieves a list of all chat sessions for the current user (simulated).
     """
-    return await service.list_sessions(skip = skip, limit = limit)
+    service: SessionService = SessionService(repository)
+    return await service.list_sessions(skip, limit)
 
 
-@router.patch(
+@router.put(
     "/{session_id}", 
     response_model=Session, 
     summary="Update session title"
 )
 async def update_session(
     session_id: UUID7Str,
-    request: SessionUpdate,
-    service: SessionService = Depends(get_session_service)
-):
+    session_update: SessionUpdate,
+    session_repository: AbstractRepository = Depends(get_session_repository), ):
     """
     Updates mutable session properties, such as the user-friendly title.
     """
-    updated_session = await service.update_session(session_id, request)
-    if updated_session is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
-    return updated_session
+    
+    service: SessionService = SessionService(session_repository)
+    return await service.update_session(session_id, session_update)
 
 
 @router.delete(
@@ -90,11 +89,9 @@ async def update_session(
 )
 async def delete_session(
     session_id: UUID7Str, 
-    service: SessionService = Depends(get_session_service)
-):
+    repository: AbstractRepository = Depends(get_session_repository)):
     """
     Deletes the session and all associated messages.
-    We return 204 even if not found, as the desired state (deleted) is achieved (Idempotence)
     """
-    await service.delete_session(session_id)
-    return 204
+    service: SessionService = SessionService(repository)
+    return await service.delete_session(session_id)
