@@ -31,7 +31,6 @@ class MessageService:
 
     def _generate_user_message(self, session_id: UUID7Str,type: MessageType, content: str) -> MessageModel:
         """Creates a new user message."""
-        print("--->>",session_id, content, type)
         message_data = {
             "session_id":session_id,
             "role": MessageRole.USER,
@@ -44,7 +43,6 @@ class MessageService:
     async def _add_message(self, role: MessageRole, kwargs) -> Message:
 
         """Creates a new message with basic validation."""
-        print(kwargs)
         message = self._generate_user_message(** kwargs) if role == MessageRole.USER else self._generate_assistant_message(**kwargs)
         return await self.repository.create(message)
 

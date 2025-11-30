@@ -21,7 +21,6 @@ class SessionService:
         create session
         """
         agent = await self.session_repo.get_agent(session_data.agent_id)
-        print("agent get as:", agent)
         if not agent:
             logger.error(f"Failed to create session: Agent ID {session_data.agent_id} not found.")
             raise HTTPException(status_code=404, detail = f"agent with id {session_data.agent_id} not found")
