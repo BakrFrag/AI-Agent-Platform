@@ -117,3 +117,11 @@ backend service for an AI Agent Platform, enabling users to create, manage, and 
 |  aiosqlite | async sqlite3  |
 |openai | openai client python library|
 
+### Application Notes 
+
+- Logghing is enabled but being controled with log level and env type 
+- exception handling overal application 
+- all is `async` queries, requests and openai `integrations` also usinmg `async client` 
+- `id` field is `UUID7` as this achive both securrirt and very well with db indexing, `integer field is predectable and causes security risk` 
+- messages supports both `Arabic` and `English` for audio and text 
+- support wide range for audio `wav, ogg, mp3, flac, m4a, aac, webm` 
