@@ -1,9 +1,10 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.core import get_db_async_session
-from .service import MessageService
+from src.common import AbstractRepository
+from .repository import MessageRepository
 
 # Dependency function for service injection
-async def get_message_service(session: AsyncSession = Depends(get_db_async_session)) -> MessageService:
+def get_message_repository(session: AsyncSession = Depends(get_db_async_session)) -> AbstractRepository:
     """Creates a Service instance tied to the request's database session."""
-    return MessageService(session)
+    return MessageRepository(session)

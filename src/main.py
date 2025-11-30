@@ -6,7 +6,7 @@ from src.agent import  agent_router
 from src.session import session_router
 from src.message import message_router
 # Exception Handlers
-from src.exceptions import( register_sqlalchemy_handler, register_openai_handler, register_http_handler)
+from src.exceptions import register_global_exception_handlers
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -32,12 +32,12 @@ API_PREFIX = f"/api/{settings.APP_VERSION}"
 
 
 # ROUTERS
-
-
 app.include_router(agent_router, prefix=API_PREFIX)
 app.include_router(session_router, prefix=API_PREFIX)
 app.include_router(message_router, prefix=API_PREFIX)
 
+# register exception handlers
+register_global_exception_handlers(app)
 
 
 @app.get("/health/check/", tags=["System"])

@@ -116,6 +116,7 @@ class AsyncOpenAIClient:
     
     async def speech_to_text(
         self,
+        mime_type: str,
         voice_note: bytes,
         prompt: Optional[str] = None,
         language: Optional[str] = None,
@@ -130,7 +131,7 @@ class AsyncOpenAIClient:
             transcript text
         """
         voice_note = BytesIO(voice_note)
-        voice_note.name = "voice_note.mp3"
+        voice_note.name = f"voice_note.{mime_type}"
         transcription = await self.client.audio.transcriptions.create(
             model=self.stt_model,
             file= voice_note,
