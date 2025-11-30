@@ -38,7 +38,7 @@ class MessageRepository(AbstractRepository[Message, int]):
        
     
     
-    async def get_message_conversion_history(self, session_id: UUID7Str, number_of_messages: int = 2) -> list[dict]:
+    async def get_message_conversion_history(self, session_id: UUID7Str, number_of_messages: int = 1) -> list[dict]:
         """
         retrieve all messages in the database and return as list of dict with role and content keys
         """
@@ -47,15 +47,6 @@ class MessageRepository(AbstractRepository[Message, int]):
         rows = result.all()[:number_of_messages]
         return [ {"role": r.role.value, "content": r.content} for r in rows ]
     
-    # async def get_session_by_id(self, session_id: UUID7Str):
-    #     """
-    #     get session by ID
-    #     """
-    #     print("------------------- from repository")
-    #     stmt = select(Session).where(Session.id == str(session_id))
-    #     print
-    #     result = await self.session.execute(stmt)
-    #     return result.scalars().first()
 
     async def get_session_by_id(self, entity_id: UUID7Str) -> Optional[Session]:
         """Retrieves a Session by its primary key (ID)."""
